@@ -1,5 +1,6 @@
 package com.BMS.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -28,13 +29,16 @@ public class Product {
 
 
     @ManyToOne
-    @JoinTable(name = "category_id")
+    @JoinColumn(name = "category_id")
+    @JsonIgnore
     private Category category;
 
-    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, fetch = FetchType.EAGER, orphanRemoval = true)
+    @JsonIgnore
     private List<CartItem> products = new ArrayList<>();
 
-    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @OneToMany(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true)
+    @JsonIgnore
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @ManyToMany

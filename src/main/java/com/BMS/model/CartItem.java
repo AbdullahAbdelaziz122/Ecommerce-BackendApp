@@ -1,5 +1,6 @@
 package com.BMS.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class CartItem {
 
     @ManyToOne
     @JoinColumn(name = "cart_id")
+    @JsonIgnore
     private Cart cart;
 
     @ManyToOne
@@ -25,6 +27,6 @@ public class CartItem {
 
     private Integer quantity;
     private double discount;
-    private double productPrice;
+    private Double productPrice;
 
 }

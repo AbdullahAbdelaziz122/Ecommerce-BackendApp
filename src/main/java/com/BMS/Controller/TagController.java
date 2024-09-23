@@ -1,13 +1,12 @@
 package com.BMS.Controller;
 
-import com.BMS.config.AppConstants;
+import com.BMS.util.AppConstants;
 import com.BMS.model.Tag;
 import com.BMS.payloads.TagDTO;
 import com.BMS.payloads.TagResponse;
 import com.BMS.service.TagService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

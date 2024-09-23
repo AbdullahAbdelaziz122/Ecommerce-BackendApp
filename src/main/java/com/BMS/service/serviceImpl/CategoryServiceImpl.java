@@ -9,10 +9,10 @@ import com.BMS.payloads.CategoryResponse;
 import com.BMS.repository.CategoryRepository;
 import com.BMS.repository.ProductRepository;
 import com.BMS.service.CategoryService;
+import com.BMS.service.ProductService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +29,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final ModelMapper modelMapper;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductService productService;
 
     @Override
     public CategoryDTO createCategory(Category category) {
@@ -44,35 +45,6 @@ public class CategoryServiceImpl implements CategoryService {
 
 
 
-    // todo : Choose one of those methods but before test both
-//    @Override
-//    public CategoryResponse getCategories(Integer pageNumber, Integer pageLimit, String categoryName) {
-//
-//        Pageable pageable = PageRequest.of(pageNumber, pageLimit, Sort.unsorted());
-//        Page<Category> categoryPage = categoryRepository.findAll(pageable);
-//
-//        List<Category> categories = categoryPage.getContent();
-//
-//        if(categories.isEmpty()){
-//            throw new RuntimeException("No category is created till now");
-//        }
-//
-//        List<CategoryDTO> categoryDTOS = categories.stream().map(category -> modelMapper.map(category, CategoryDTO.class)).toList();
-//
-//        CategoryResponse categoryResponse = new CategoryResponse();
-//
-//        categoryResponse.setData(categoryDTOS);
-//        categoryResponse.setPageNumber(categoryPage.getNumber());
-//        categoryResponse.setPageLimit(categoryPage.getSize());
-//        categoryResponse.setTotalPages(categoryPage.getTotalPages());
-//        categoryResponse.setTotalElements(categoryPage.getTotalElements());
-//
-//        return categoryResponse;
-//
-//    }
-
-
-    // todo: check this method and it's logic behind it's the copilot code
 
     @Override
     public CategoryResponse getCategories(Integer pageNumber, Integer pageLimit, String categoryName) {
@@ -114,18 +86,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
 
-    // todo: My problem here that i want to delete a category but that would delete every product in the category
-
-    // todo : This method after the productService finishing
     @Override
     public String deleteCategory(Long categoryId) {
-//        Category savedCategory = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("There are no category with Id: "+ categoryId));
-//        categoryRepository.deleteById(categoryId);
-//        List<Product> products = savedCategory.getProducts();
-//
-//        products.forEach(product -> {
-//            productService.deleteProduct(product.getProductId());
-//        });
+        Category savedCategory = categoryRepository.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("There are no category with Id: "+ categoryId));
+        categoryRepository.deleteById(categoryId);
+        List<Product> products = savedCategory.getProducts();
+
+        products.forEach(product -> {
+            productService.deleteProduct(product.getId());
+        });
         return "Category has been deleted successfully";
 
     }

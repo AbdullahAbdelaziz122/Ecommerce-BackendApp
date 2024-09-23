@@ -1,7 +1,7 @@
 package com.BMS.Controller;
 
 
-import com.BMS.config.AppConstants;
+import com.BMS.util.AppConstants;
 import com.BMS.model.Product;
 import com.BMS.payloads.ProductDTO;
 import com.BMS.payloads.ProductResponse;
@@ -58,5 +58,11 @@ public class ProductController {
     )
     {
         return new ResponseEntity<>(productService.updateProduct(product, productId), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/admin/product/delete")
+    public ResponseEntity<String> deleteProduct(@RequestParam(value = "productId") Long productId){
+        productService.deleteProduct(productId);
+        return new ResponseEntity<>("Product has been successfully deleted", HttpStatus.OK);
     }
 }

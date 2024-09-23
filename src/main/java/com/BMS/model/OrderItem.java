@@ -1,29 +1,44 @@
 package com.BMS.model;
 
-import jakarta.persistence.*;
+
+
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@RequiredArgsConstructor
-@Table(name = "order_item")
+@Table(name = "order_items")
+@AllArgsConstructor
+@NoArgsConstructor
 public class OrderItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "order_item_id")
-    private Long id;
+    private Long orderItemId;
 
-    private double discount;
-    private double orderedProductPrice;
-    private Integer quantity;
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    @JsonIgnore
+    private Order order;
+
 
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
+    private Integer quantity;
+    private double discount;
+    private double orderedProductPrice;
+
 }
+

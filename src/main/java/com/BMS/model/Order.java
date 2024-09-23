@@ -1,10 +1,12 @@
 package com.BMS.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,25 +21,28 @@ public class Order {
     @Column(name = "order_id")
     private Long id;
 
+    private String secretId;
+
+    @NotBlank(message = "please provide a name")
+    private String name;
+
+    @NotBlank(message = "please provide an email")
+    @Email(message = "please provide a valid email address")
     private String email;
 
-    @Column(name = "order_date")
-    private LocalDate date;
+    @NotBlank(message = "Please provide an address")
+    private String address;
 
-    @Column(name = "order_status")
-    private String status;
+    @Pattern(regexp = "\\d{11}", message = "Phone number must be exactly 11 digits")
+    private String phoneNo;
 
-    @Column(name = "total-amount")
-    private double totalAmount;
+    private Double totalAmount = 0.0;
 
+    private String orderStatus;
 
-    @OneToMany(mappedBy = "order", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<OrderItem> orderItems = new ArrayList<>();
+    @OneToMany(mappedBy = "order", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    private List<OrderItem> orderItemsList = new ArrayList<>();
 
-
-    @OneToOne
-    @JoinColumn(name = "payment_id")
-    private Payment payment;
-
-
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderRequest> orderRequests;
 }

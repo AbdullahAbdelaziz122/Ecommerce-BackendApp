@@ -1,12 +1,11 @@
 package com.BMS.Controller;
 
-import com.BMS.config.AppConstants;
+import com.BMS.util.AppConstants;
 import com.BMS.model.Category;
 import com.BMS.payloads.CategoryDTO;
 import com.BMS.payloads.CategoryResponse;
 import com.BMS.service.CategoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @PostMapping("/admin/category")
+    @PostMapping("/admin/category/create")
     public ResponseEntity<CategoryDTO> createCategory(@RequestBody Category category){
 
 
@@ -30,7 +29,7 @@ public class CategoryController {
     }
 
 
-    @GetMapping("/admin/category/create")
+    @GetMapping("/admin/category/search")
     public ResponseEntity<CategoryResponse> getCategories(
             @RequestParam(value = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(value = "pageLimit",defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageLimit,
@@ -40,6 +39,10 @@ public class CategoryController {
 
        return new ResponseEntity<>(categoryResponse, HttpStatus.OK);
     }
+
+
+
+
 
     @PutMapping("/admin/category/update")
     public ResponseEntity<String> updateCategory(
@@ -51,6 +54,12 @@ public class CategoryController {
     }
 
 
-    // todo : delete operation
+    @DeleteMapping("/admin/category/delete")
+    public ResponseEntity<String> deleteCategory(@RequestParam(value = "categoryId", required = true) Long categoryId){
+        categoryService.deleteCategory(categoryId);
+        return new ResponseEntity<>("Category Has been deleted", HttpStatus.OK);
+
+    }
+
 
 }
