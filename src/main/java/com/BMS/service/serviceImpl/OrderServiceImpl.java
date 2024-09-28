@@ -4,10 +4,7 @@ import com.BMS.exceptions.ResourceNotFoundException;
 import com.BMS.model.*;
 import com.BMS.payloads.OrderDTO;
 import com.BMS.payloads.OrderResponse;
-import com.BMS.repository.OrderItemRepository;
-import com.BMS.repository.OrderRepository;
-import com.BMS.repository.ProductRepository;
-import com.BMS.repository.ShoppingSessionRepository;
+import com.BMS.repository.*;
 import com.BMS.service.CartService;
 import com.BMS.service.OrderService;
 import com.BMS.specification.OrderSpecification;
@@ -42,7 +39,8 @@ public class OrderServiceImpl implements OrderService {
     private final ModelMapper modelMapper = new ModelMapper();
     private final CustomMapper mapper = new CustomMapper(modelMapper);
     private final SessionManager sessionManager;
-
+    private final CartItemRepository cartItemRepository;
+    private final CartRepository cartRepository;
 
 
     private String[] getNullPropertyNames(Order source) {
@@ -50,10 +48,53 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderDTO placeOrder(HttpServletRequest request, HttpServletResponse response,  String name, String email, String phone, String address){
+//    public OrderDTO placeOrder(HttpServletRequest request, HttpServletResponse response,  String name, String email, String phone, String address){
+//
+//        ShoppingSession session = sessionManager.manageSession(request, response);
+//
+//        Cart cart = session.getCart();
+//        List<CartItem> cartItemList = cart.getCartItems();
+//
+//        if(cartItemList.isEmpty()){
+//            throw new ResourceNotFoundException("Cart is Empty");
+//        }
+//
+//        // create New Order
+//        Order order = new Order();
+//
+//        order.setName(name);
+//        order.setSecretId(UUID.randomUUID().toString());
+//        order.setEmail(email);
+//        order.setPhoneNo(phone);
+//        order.setAddress(address);
+//
+//
+//        List<OrderItem> orderItems = mapper.cartItemsToOrderItems(cartItemList, order);
+//        order.setOrderItemsList(orderItems);
+//
+//        for(OrderItem orderItem : orderItems){
+//            order.setTotalAmount(order.getTotalAmount() + (orderItem.getOrderedProductPrice() * orderItem.getQuantity()));
+//        }
+//
+//        order.setOrderStatus("Pending");
+//        order = orderRepository.save(order);
+//        orderItems = orderItemRepository.saveAll(orderItems);
+//        cartItemList.forEach(cartItem -> {
+//            int quantity = cartItem.getQuantity();
+//            Product product = cartItem.getProduct();
+//            product.setQuantity(product.getQuantity() - quantity);
+//            productRepository.save(product);
+//        });
+//
+//
+//        return mapper.orderToOrderDTO(order);
+//
+//    }
+
+
+    public OrderDTO placeOrder(HttpServletRequest request, HttpServletResponse response, String name, String email, String phone, String address){
 
         ShoppingSession session = sessionManager.manageSession(request, response);
-
         Cart cart = session.getCart();
         List<CartItem> cartItemList = cart.getCartItems();
 
@@ -61,41 +102,53 @@ public class OrderServiceImpl implements OrderService {
             throw new ResourceNotFoundException("Cart is Empty");
         }
 
-        // create New Order
+        // Create New Order
         Order order = new Order();
-
         order.setName(name);
         order.setSecretId(UUID.randomUUID().toString());
         order.setEmail(email);
         order.setPhoneNo(phone);
         order.setAddress(address);
 
-
+        // Convert cart items to order items
         List<OrderItem> orderItems = mapper.cartItemsToOrderItems(cartItemList, order);
         order.setOrderItemsList(orderItems);
 
-        for(OrderItem orderItem : orderItems){
-            order.setTotalAmount(order.getTotalAmount() + (orderItem.getOrderedProductPrice() * orderItem.getQuantity()));
+        // Calculate total amount for the order
+        double totalAmount = 0;
+        for (OrderItem orderItem : orderItems) {
+            totalAmount += (orderItem.getOrderedProductPrice() * orderItem.getQuantity());
         }
-
+        order.setTotalAmount(totalAmount);
         order.setOrderStatus("Pending");
+
+        // Save the order and its items
         order = orderRepository.save(order);
-        orderItems = orderItemRepository.saveAll(orderItems);
+        orderItemRepository.saveAll(orderItems);
+
+        // Update product quantities
         cartItemList.forEach(cartItem -> {
             int quantity = cartItem.getQuantity();
-
             Product product = cartItem.getProduct();
-
-            cartService.deleteProductFromCart(request,response, product.getId());
-
             product.setQuantity(product.getQuantity() - quantity);
             productRepository.save(product);
+
+            cart.getCartItems().remove(cartItem);
+            cartItem.setCart(null);
+            cartItem.setProduct(null);
+            cartItemRepository.deleteById(cartItem.getCartItemId());
         });
 
 
-        return mapper.orderToOrderDTO(order);
 
+//        cart.getCartItems().clear();
+        cart.setTotalPrice(0.0); // Optionally reset total price
+        cartRepository.save(cart); // Persist the empty cart
+
+        // Return the OrderDTO
+        return mapper.orderToOrderDTO(order);
     }
+
 
 
     @Override

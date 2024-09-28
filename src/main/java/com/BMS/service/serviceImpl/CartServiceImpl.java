@@ -28,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 ;
@@ -163,25 +164,35 @@ public class CartServiceImpl implements CartService {
 
 
    @Override
-public void deleteProductFromCart(HttpServletRequest request, HttpServletResponse response, Long productId){
-    ShoppingSession session = sessionManager.manageSession(request, response);
+    public void deleteProductFromCart(HttpServletRequest request, HttpServletResponse response, Long productId){
+        ShoppingSession session = sessionManager.manageSession(request, response);
 
-    Cart cart = session.getCart();
+        Cart cart = session.getCart();
 
-    Product product = productRepository.findById(productId)
-            .orElseThrow(() -> new ResourceNotFoundException("No Product were found by ID: " + productId));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("No Product were found by ID: " + productId));
 
-    CartItem cartItem = cartItemRepository.findCartItemByProductIdAndCartId(cart.getCartId(), productId)
-            .orElseThrow(() -> new ResourceNotFoundException("Product with ID " + productId + " not found in cart"));
+        CartItem cartItem = cartItemRepository.findCartItemByProductIdAndCartId(cart.getCartId(), productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product with ID " + productId + " not found in cart"));
 
-    cart.getCartItems().remove(cartItem);
-    cart.setTotalPrice(cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity()));
+        cart.getCartItems().remove(cartItem);
+        cart.setTotalPrice(cart.getTotalPrice() - (cartItem.getProductPrice() * cartItem.getQuantity()));
 
 
-    cartItem.setCart(null);
-    cartItem.setProduct(null);
-    cartItemRepository.deleteById(cartItem.getCartItemId());
-    cartRepository.save(cart);
-}
+        cartItem.setCart(null);
+        cartItem.setProduct(null);
+        cartItemRepository.deleteById(cartItem.getCartItemId());
+        cartRepository.save(cart);
+    }
+
+    public void clearCart(Long cartId){
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Product with ID " + cartId + " not found"));
+        List<CartItem> cartItems = new ArrayList<>();
+        cart.setCartItems(cartItems);
+
+        cartRepository.save(cart);
+
+
+    }
 
 }
