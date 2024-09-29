@@ -1,0 +1,17 @@
+What Problems I am facing Now:
+    - The order won't be deleted due to some null pointer exception that I still don't understand how it works or
+        why it happens, but I think it's due to the mupltiple and looped connection bettween my entities.
+
+        Current Ideas for the problem:
+            - Try to see the connections of the entities and see if there is a closed loop what I mean is
+                there are three entities that are connected together maybe the problem is here.
+
+
+
+    - I want to make the final entity and it's services:
+        - The project Request and it's about customers uploading files to the system for the owner to look at with a
+            proposal.
+
+        - I need to find How to allow uploading with size and type limitations:
+            - Size : 10MB
+            - Type : jpg, png, docs, excel, powerpoint, pdf

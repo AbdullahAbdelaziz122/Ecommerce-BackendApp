@@ -86,4 +86,8 @@ public ResponseEntity<CartDTO> addItemToCart(
         return new ResponseEntity<>("Product has been successfully deleted", HttpStatus.OK);
     }
 
+    @DeleteMapping("/admin/cart/delete")
+    public ResponseEntity<String> clearCart(@RequestParam(value = "cartId", required = true) Long cartId){
+       return new ResponseEntity<>(cartService.clearCart(cartId), HttpStatus.OK);
+    }
 }

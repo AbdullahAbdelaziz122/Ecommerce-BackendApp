@@ -133,17 +133,7 @@ public class OrderServiceImpl implements OrderService {
             product.setQuantity(product.getQuantity() - quantity);
             productRepository.save(product);
 
-            cart.getCartItems().remove(cartItem);
-            cartItem.setCart(null);
-            cartItem.setProduct(null);
-            cartItemRepository.deleteById(cartItem.getCartItemId());
         });
-
-
-
-//        cart.getCartItems().clear();
-        cart.setTotalPrice(0.0); // Optionally reset total price
-        cartRepository.save(cart); // Persist the empty cart
 
         // Return the OrderDTO
         return mapper.orderToOrderDTO(order);
@@ -212,6 +202,11 @@ public class OrderServiceImpl implements OrderService {
     public String deleteOrder(Long orderId){
         Order existingOrder = orderRepository.findById(orderId)
                 .orElseThrow(()-> new ResourceNotFoundException("No order with ID: "+orderId+" Were found"));
+
+        for(OrderItem orderItem : existingOrder.getOrderItemsList()){
+            orderRepository.delete(orderItem.getOrder());
+        }
+
 
         orderRepository.deleteById(orderId);
 

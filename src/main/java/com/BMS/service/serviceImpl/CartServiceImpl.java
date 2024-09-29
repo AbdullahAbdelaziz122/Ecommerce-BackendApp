@@ -185,14 +185,13 @@ public class CartServiceImpl implements CartService {
         cartRepository.save(cart);
     }
 
-    public void clearCart(Long cartId){
-        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Product with ID " + cartId + " not found"));
-        List<CartItem> cartItems = new ArrayList<>();
-        cart.setCartItems(cartItems);
-
-        cartRepository.save(cart);
-
-
+    @Override
+    public String clearCart(Long cartId){
+        Cart cart = cartRepository.findById(cartId).orElseThrow(()-> new ResourceNotFoundException("No Cart Found with ID: "+ cartId));
+        cartItemRepository.deleteAllByCart_CartId(cartId);
+        cart.getCartItems().clear();
+        cartRepository.deleteById(cartId);
+        return "Cart Has been Deleted Successfully !";
     }
 
 }

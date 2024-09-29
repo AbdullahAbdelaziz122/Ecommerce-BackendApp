@@ -111,6 +111,7 @@ public class CustomMapper {
         orderDTO.setPhoneNo(order.getPhoneNo());
         orderDTO.setTotalAmount(order.getTotalAmount());
         orderDTO.setOrderItems(this.orderItemsToOrderItemDTOS(order.getOrderItemsList()));
+        orderDTO.setOrderStatus(order.getOrderStatus());
         return orderDTO;
     }
 
